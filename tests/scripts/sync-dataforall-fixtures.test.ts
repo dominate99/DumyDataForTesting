@@ -336,6 +336,15 @@ describe("syncDataForAllFixtures", () => {
 });
 
 describe("parseCliArgs", () => {
+  test("ignores a standalone pnpm argument separator", () => {
+    expect(
+      parseCliArgs(["--", "--dataforall-repo", "../DATAFORALL", "--clean-stale-managed"])
+    ).toEqual({
+      dataForAllRepoPath: "../DATAFORALL",
+      cleanStaleManagedFiles: true
+    });
+  });
+
   test("rejects a missing value after --dataforall-repo", () => {
     expect(() => parseCliArgs(["--dataforall-repo"])).toThrow(
       "Missing required value for --dataforall-repo <path>."

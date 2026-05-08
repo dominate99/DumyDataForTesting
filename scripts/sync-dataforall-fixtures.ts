@@ -454,6 +454,10 @@ export function parseCliArgs(argv: readonly string[]): SyncDataForAllFixturesOpt
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
 
+    if (argument === "--") {
+      continue;
+    }
+
     if (argument === "--help") {
       return "help";
     }
