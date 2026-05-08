@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc --noEmit",
     "test": "vitest run",
-    "generate:fixtures": "tsx scripts/generate-fixtures.ts"
+    "generate:fixtures": "tsx scripts/generate-fixtures.ts",
+    "sync:dataforall-fixtures": "tsx scripts/sync-dataforall-fixtures.ts"
   },
   "dependencies": {
     "jszip": "^3.10.1"

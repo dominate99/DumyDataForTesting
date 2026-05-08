@@ -44,6 +44,28 @@ Each generated scenario writes:
 
 Fixture filenames are derived from the scenario id and include a short hash so sanitized names stay collision-safe across platforms.
 
+## Sync curated DATAFORALL fixtures
+
+Refresh the curated helper-backed fixtures inside an existing `DATAFORALL` checkout:
+
+```bash
+pnpm sync:dataforall-fixtures -- --dataforall-repo ../DATAFORALL
+```
+
+The sync command always regenerates the curated helper source fixtures into a temporary directory before copying, so it does not depend on a previously generated local `generated-fixtures` tree.
+
+It copies only the managed curated set into `src/test/fixtures/datafortestinghelper` under the repo path you provide. Existing unmanaged files in that target directory are left alone.
+
+The command also writes `.datafortestinghelper-sync-manifest.json` in the target fixture directory so it can track which files were managed by the helper sync.
+
+If you intentionally want to remove files that were previously managed by this sync manifest but are no longer in the curated contract, opt into cleanup explicitly:
+
+```bash
+pnpm sync:dataforall-fixtures -- --dataforall-repo ../DATAFORALL --clean-stale-managed
+```
+
+For safety, the provided repo path must already contain `src/test/fixtures`; the command will create only the `datafortestinghelper` child directory if it is missing.
+
 ## Runtime usage
 
 ```ts
