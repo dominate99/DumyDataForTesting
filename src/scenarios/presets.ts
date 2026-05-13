@@ -60,6 +60,22 @@ const presetCatalog = deepFreeze([
     ]
   },
   {
+    id: "replacement-import-single-night",
+    description: "A later single-night import for snapshot replacement tests.",
+    expectedOutcome: "success",
+    records: [
+      {
+        startDate: "2026-04-03 00:30:00 -0700",
+        endDate: "2026-04-03 06:30:00 -0700",
+        value: "HKCategoryValueSleepAnalysisAsleepCore",
+        device: "Apple Watch",
+        sourceName: "Apple Watch",
+        sourceVersion: "10",
+        creationDate: "2026-04-03 07:35:00 -0700"
+      }
+    ]
+  },
+  {
     id: "missing-start-date",
     description: "A record missing startDate for parser validation tests.",
     expectedOutcome: "failure",
@@ -89,6 +105,33 @@ const presetCatalog = deepFreeze([
         sourceName: "Apple Watch",
         sourceVersion: "10",
         creationDate: "2026-04-01 08:05:00 -0700"
+      }
+    ]
+  },
+  {
+    id: "mixed-valid-and-invalid-records",
+    description:
+      "A failure-oriented export containing one valid sleep record and one invalid sleep record.",
+    expectedOutcome: "failure",
+    expectedError: "Sleep record has an invalid startDate.",
+    records: [
+      {
+        startDate: NIGHT_1_START,
+        endDate: NIGHT_1_END,
+        value: "HKCategoryValueSleepAnalysisAsleepCore",
+        device: "Apple Watch",
+        sourceName: "Apple Watch",
+        sourceVersion: "10",
+        creationDate: "2026-04-01 08:05:00 -0700"
+      },
+      {
+        startDate: "not-a-date",
+        endDate: "2026-04-02 07:15:00 -0700",
+        value: "HKCategoryValueSleepAnalysisAsleepCore",
+        device: "Apple Watch",
+        sourceName: "Apple Watch",
+        sourceVersion: "10",
+        creationDate: "2026-04-02 07:35:00 -0700"
       }
     ]
   },

@@ -26,9 +26,24 @@ const CURATED_DATAFORALL_SYNC_SELECTION = [
     targetFileName: "invalid-start-date.xml"
   },
   {
+    scenarioId: "mixed-valid-and-invalid-records",
+    artifactKind: "xml",
+    targetFileName: "mixed-valid-and-invalid-records.xml"
+  },
+  {
     scenarioId: "missing-start-date",
     artifactKind: "xml",
     targetFileName: "missing-start-date.xml"
+  },
+  {
+    scenarioId: "end-before-start",
+    artifactKind: "xml",
+    targetFileName: "end-before-start.xml"
+  },
+  {
+    scenarioId: "replacement-import-single-night",
+    artifactKind: "xml",
+    targetFileName: "replacement-import-single-night.xml"
   },
   {
     scenarioId: "single-valid-night",

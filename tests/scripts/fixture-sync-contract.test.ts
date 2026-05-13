@@ -30,9 +30,24 @@ describe("DATAFORALL fixture sync contract", () => {
         targetFileName: "invalid-start-date.xml"
       },
       {
+        scenarioId: "mixed-valid-and-invalid-records",
+        artifactKind: "xml",
+        targetFileName: "mixed-valid-and-invalid-records.xml"
+      },
+      {
         scenarioId: "missing-start-date",
         artifactKind: "xml",
         targetFileName: "missing-start-date.xml"
+      },
+      {
+        scenarioId: "end-before-start",
+        artifactKind: "xml",
+        targetFileName: "end-before-start.xml"
+      },
+      {
+        scenarioId: "replacement-import-single-night",
+        artifactKind: "xml",
+        targetFileName: "replacement-import-single-night.xml"
       },
       {
         scenarioId: "single-valid-night",
@@ -71,7 +86,10 @@ describe("DATAFORALL fixture sync contract", () => {
     expect(DATAFORALL_MANAGED_FIXTURE_FILE_NAMES).toEqual([
       "fallback-device-and-stage.sleep-records.json",
       "invalid-start-date.xml",
+      "mixed-valid-and-invalid-records.xml",
       "missing-start-date.xml",
+      "end-before-start.xml",
+      "replacement-import-single-night.xml",
       "single-valid-night.sleep-records.json",
       "single-valid-night.zip",
       "strong-coverage-multi-night.sleep-records.json",
@@ -81,7 +99,7 @@ describe("DATAFORALL fixture sync contract", () => {
     ]);
 
     expect(isManagedDataForAllFixtureFileName("two-valid-nights.zip")).toBe(true);
-    expect(isManagedDataForAllFixtureFileName("end-before-start.xml")).toBe(false);
+    expect(isManagedDataForAllFixtureFileName("end-before-start.xml")).toBe(true);
     expect(isManagedDataForAllFixtureFileName("two-valid-nights.manifest.json")).toBe(false);
   });
 

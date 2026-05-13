@@ -2,6 +2,7 @@ import type { SleepScenario, SleepScenarioRecord } from "../domain/sleepScenario
 
 const DEFAULT_STAGE = "unknown";
 const DEFAULT_DEVICE = "apple-health-export";
+const FIXTURE_INGESTED_AT = "2026-05-07T12:34:56.000Z";
 const RECORD_DATE_PATTERN =
   /^(?<date>\d{4}-\d{2}-\d{2}) (?<time>\d{2}:\d{2}:\d{2}) (?<offset>[+-]\d{4})$/;
 
@@ -77,8 +78,6 @@ function validateRecordDates(record: SleepScenarioRecord): { startAt: string; en
 }
 
 export function buildExpectedSleepRecords(scenario: SleepScenario): SleepRecord[] {
-  const ingestedAt = new Date().toISOString();
-
   return scenario.records.map((record) => {
     const { startAt, endAt } = validateRecordDates(record);
     const startDate = record.startDate;
@@ -97,7 +96,7 @@ export function buildExpectedSleepRecords(scenario: SleepScenario): SleepRecord[
       durationMinutes,
       sleepStageSummary,
       sourceDevice,
-      ingestedAt
+      ingestedAt: FIXTURE_INGESTED_AT
     };
   });
 }

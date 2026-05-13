@@ -11,4 +11,11 @@ describe("buildAppleHealthZip", () => {
 
     expect(xml).toContain('type="HKCategoryTypeIdentifierSleepAnalysis"');
   });
+
+  test("produces stable bytes for the same scenario across repeated runs", async () => {
+    const first = await buildAppleHealthZip(getScenarioById("single-valid-night"));
+    const second = await buildAppleHealthZip(getScenarioById("single-valid-night"));
+
+    expect([...first]).toEqual([...second]);
+  });
 });

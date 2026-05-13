@@ -6,8 +6,10 @@ describe("scenario presets", () => {
     expect(scenarioPresets.map((scenario) => scenario.id)).toEqual([
       "single-valid-night",
       "two-valid-nights",
+      "replacement-import-single-night",
       "missing-start-date",
       "invalid-start-date",
+      "mixed-valid-and-invalid-records",
       "end-before-start",
       "fallback-device-and-stage",
       "strong-coverage-multi-night"
@@ -16,6 +18,16 @@ describe("scenario presets", () => {
 
   test("returns a scenario by id", () => {
     expect(getScenarioById("single-valid-night").description).toContain("single");
+  });
+
+  test("keeps the mixed failure scenario and replacement success scenario semantically distinct", () => {
+    expect(getScenarioById("mixed-valid-and-invalid-records")).toMatchObject({
+      expectedOutcome: "failure",
+      expectedError: "Sleep record has an invalid startDate."
+    });
+    expect(getScenarioById("replacement-import-single-night")).toMatchObject({
+      expectedOutcome: "success"
+    });
   });
 
   test("throws when a scenario id is unknown", () => {

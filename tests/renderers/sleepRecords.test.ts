@@ -1,17 +1,8 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import { buildExpectedSleepRecords, parseRecordDate } from "../../src/renderers/sleepRecords";
 import { getScenarioById } from "../../src/scenarios/presets";
 
 describe("buildExpectedSleepRecords", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-05-07T12:34:56.000Z"));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   test("valid scenario normalizes into one expected SleepRecord", () => {
     const scenario = getScenarioById("single-valid-night");
 
