@@ -4,11 +4,13 @@ import { tmpdir } from "node:os";
 import { join, posix, resolve, win32 } from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateFixtures } from "./generate-fixtures";
+import { datasetFixtures } from "../src/fixtures/datasetFixtures";
 import {
   DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT,
   DATAFORALL_MANAGED_FIXTURE_FILE_NAMES,
   getDataForAllFixtureSourceFileNameForTargetFileName
 } from "../src/fixtures/dataForAllFixtureSyncContract";
+import { writeDatasetFixtureFiles } from "../src/fixtures/writeDatasetFixtureFiles";
 
 const DATAFORALL_TARGET_FIXTURE_PARENT_SEGMENTS = ["src", "test", "fixtures"] as const;
 const DATAFORALL_TARGET_FIXTURE_DIR_NAME = "datafortestinghelper";
@@ -42,6 +44,7 @@ export interface SyncDataForAllFixturesRuntime {
   stat: typeof stat;
   writeFile: typeof writeFile;
   generateFixtures: typeof generateFixtures;
+  writeDatasetFixtureFiles: typeof writeDatasetFixtureFiles;
 }
 
 const DEFAULT_SYNC_RUNTIME: SyncDataForAllFixturesRuntime = {
@@ -53,7 +56,8 @@ const DEFAULT_SYNC_RUNTIME: SyncDataForAllFixturesRuntime = {
   rm,
   stat,
   writeFile,
-  generateFixtures
+  generateFixtures,
+  writeDatasetFixtureFiles
 };
 
 interface RollbackEntry {
@@ -222,7 +226,13 @@ async function writeManagedFileManifest(
 }
 
 function getCuratedScenarioIds(): readonly string[] {
-  return [...new Set(DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT.map((entry) => entry.scenarioId))];
+  return [
+    ...new Set(
+      DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT.flatMap((entry) =>
+        entry.fixtureSource === "sleep-scenario" ? [entry.scenarioId] : []
+      )
+    )
+  ];
 }
 
 async function copyManagedFixtures(
@@ -417,7 +427,10 @@ export async function syncDataForAllFixtures(
 }
 
 async function generateFreshCuratedSourceFixtures(
-  runtime: Pick<SyncDataForAllFixturesRuntime, "generateFixtures" | "mkdtemp" | "rm">
+  runtime: Pick<
+    SyncDataForAllFixturesRuntime,
+    "generateFixtures" | "mkdtemp" | "rm" | "writeDatasetFixtureFiles"
+  >
 ): Promise<string> {
   const outputDir = await runtime.mkdtemp(join(tmpdir(), "datafortestinghelper-sync-"));
 
@@ -426,6 +439,9 @@ async function generateFreshCuratedSourceFixtures(
       outputDir,
       scenarioIds: getCuratedScenarioIds()
     });
+    for (const fixture of datasetFixtures) {
+      await runtime.writeDatasetFixtureFiles(fixture, { outputDir });
+    }
     return outputDir;
   } catch (error) {
     await runtime.rm(outputDir, { recursive: true, force: true });

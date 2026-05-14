@@ -3,12 +3,14 @@ import { tmpdir } from "node:os";
 import { join, posix, win32 } from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import { generateFixtures } from "../../scripts/generate-fixtures";
+import { datasetFixtures } from "../../src/fixtures/datasetFixtures";
 import {
   DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT,
   DATAFORALL_MANAGED_FIXTURE_FILE_NAMES,
   getDataForAllFixtureSourceFileNameForTargetFileName,
   isManagedDataForAllFixtureFileName
 } from "../../src/fixtures/dataForAllFixtureSyncContract";
+import { writeDatasetFixtureFiles } from "../../src/fixtures/writeDatasetFixtureFiles";
 
 const tempDirs: string[] = [];
 
@@ -20,64 +22,106 @@ describe("DATAFORALL fixture sync contract", () => {
   test("defines the curated stable filenames DATAFORALL manages", () => {
     expect(DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT).toEqual([
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "fallback-device-and-stage",
         artifactKind: "normalizedJson",
         targetFileName: "fallback-device-and-stage.sleep-records.json"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "invalid-start-date",
         artifactKind: "xml",
         targetFileName: "invalid-start-date.xml"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "mixed-valid-and-invalid-records",
         artifactKind: "xml",
         targetFileName: "mixed-valid-and-invalid-records.xml"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "missing-start-date",
         artifactKind: "xml",
         targetFileName: "missing-start-date.xml"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "end-before-start",
         artifactKind: "xml",
         targetFileName: "end-before-start.xml"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "replacement-import-single-night",
         artifactKind: "xml",
         targetFileName: "replacement-import-single-night.xml"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "single-valid-night",
         artifactKind: "normalizedJson",
         targetFileName: "single-valid-night.sleep-records.json"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "single-valid-night",
         artifactKind: "zip",
         targetFileName: "single-valid-night.zip"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "strong-coverage-multi-night",
         artifactKind: "normalizedJson",
         targetFileName: "strong-coverage-multi-night.sleep-records.json"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "two-valid-nights",
         artifactKind: "normalizedJson",
         targetFileName: "two-valid-nights.sleep-records.json"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "two-valid-nights",
         artifactKind: "xml",
         targetFileName: "two-valid-nights.xml"
       },
       {
+        fixtureSource: "sleep-scenario",
         scenarioId: "two-valid-nights",
         artifactKind: "zip",
         targetFileName: "two-valid-nights.zip"
+      },
+      {
+        fixtureSource: "dataset-fixture",
+        datasetFixtureId: "apple-health-sleep-dataset",
+        artifactKind: "expectedArtifactJson",
+        targetFileName: "two-valid-nights.dataset-artifact.json"
+      },
+      {
+        fixtureSource: "dataset-fixture",
+        datasetFixtureId: "structured-json-dataset",
+        artifactKind: "source",
+        targetFileName: "structured-json-dataset.json"
+      },
+      {
+        fixtureSource: "dataset-fixture",
+        datasetFixtureId: "structured-json-dataset",
+        artifactKind: "expectedArtifactJson",
+        targetFileName: "structured-json-dataset.dataset-artifact.json"
+      },
+      {
+        fixtureSource: "dataset-fixture",
+        datasetFixtureId: "structured-txt-dataset",
+        artifactKind: "source",
+        targetFileName: "structured-txt-dataset.txt"
+      },
+      {
+        fixtureSource: "dataset-fixture",
+        datasetFixtureId: "structured-txt-dataset",
+        artifactKind: "expectedArtifactJson",
+        targetFileName: "structured-txt-dataset.dataset-artifact.json"
       }
     ]);
   });
@@ -95,11 +139,17 @@ describe("DATAFORALL fixture sync contract", () => {
       "strong-coverage-multi-night.sleep-records.json",
       "two-valid-nights.sleep-records.json",
       "two-valid-nights.xml",
-      "two-valid-nights.zip"
+      "two-valid-nights.zip",
+      "two-valid-nights.dataset-artifact.json",
+      "structured-json-dataset.json",
+      "structured-json-dataset.dataset-artifact.json",
+      "structured-txt-dataset.txt",
+      "structured-txt-dataset.dataset-artifact.json"
     ]);
 
     expect(isManagedDataForAllFixtureFileName("two-valid-nights.zip")).toBe(true);
     expect(isManagedDataForAllFixtureFileName("end-before-start.xml")).toBe(true);
+    expect(isManagedDataForAllFixtureFileName("structured-json-dataset.json")).toBe(true);
     expect(isManagedDataForAllFixtureFileName("two-valid-nights.manifest.json")).toBe(false);
   });
 
@@ -114,9 +164,20 @@ describe("DATAFORALL fixture sync contract", () => {
     const outputDir = await mkdtemp(join(tmpdir(), "datafortestinghelper-sync-contract-"));
     tempDirs.push(outputDir);
 
-    const scenarioIds = [...new Set(DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT.map((entry) => entry.scenarioId))];
+    const scenarioIds = [
+      ...new Set(
+        DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT.flatMap((entry) =>
+          entry.fixtureSource === "sleep-scenario" ? [entry.scenarioId] : []
+        )
+      )
+    ];
 
     await generateFixtures({ outputDir, scenarioIds });
+    await Promise.all(
+      datasetFixtures.map(async (fixture) => {
+        await writeDatasetFixtureFiles(fixture, { outputDir });
+      })
+    );
 
     await Promise.all(
       DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT.map(async (entry) => {

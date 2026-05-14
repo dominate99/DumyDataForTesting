@@ -11,11 +11,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import { generateFixtures } from "../../scripts/generate-fixtures";
+import { datasetFixtures } from "../../src/fixtures/datasetFixtures";
 import {
   DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT,
   DATAFORALL_MANAGED_FIXTURE_FILE_NAMES,
   getDataForAllFixtureSourceFileNameForTargetFileName
 } from "../../src/fixtures/dataForAllFixtureSyncContract";
+import { writeDatasetFixtureFiles } from "../../src/fixtures/writeDatasetFixtureFiles";
 import {
   DATAFORALL_FIXTURE_SYNC_MANIFEST_FILE_NAME,
   parseCliArgs,
@@ -43,8 +45,20 @@ async function createCuratedSourceFixtures(): Promise<string> {
 
   await generateFixtures({
     outputDir,
-    scenarioIds: [...new Set(DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT.map((entry) => entry.scenarioId))]
+    scenarioIds: [
+      ...new Set(
+        DATAFORALL_CURATED_FIXTURE_SYNC_CONTRACT.flatMap((entry) =>
+          entry.fixtureSource === "sleep-scenario" ? [entry.scenarioId] : []
+        )
+      )
+    ]
   });
+
+  await Promise.all(
+    datasetFixtures.map(async (fixture) => {
+      await writeDatasetFixtureFiles(fixture, { outputDir });
+    })
+  );
 
   return outputDir;
 }
