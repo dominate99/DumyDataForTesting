@@ -66,6 +66,56 @@ pnpm sync:dataforall-fixtures -- --dataforall-repo ../DATAFORALL --clean-stale-m
 
 For safety, the provided repo path must already contain `src/test/fixtures`; the command will create only the `datafortestinghelper` child directory if it is missing.
 
+## DATAFORALL integration contract
+
+Use `datafortestinghelper` as the default source of truth for realistic shared test-data stories in `DATAFORALL`.
+
+Use helper-backed fixtures when a test is asserting a reusable product story such as:
+
+- Apple Health sleep import and parser flows
+- shared sleep-record scenarios reused across import, app, hook, and value-estimate tests
+- canonical dataset import stories for Apple Health, JSON, and TXT
+
+Keep tests inline when they are intentionally local, small, or malformed in ways that are clearer by hand, such as:
+
+- repository micro-tests
+- source-detection and malformed-container edge cases
+- direct restore-shell setup tests that are asserting local DB state rather than imported file semantics
+
+If a realistic input file or expected imported artifact would be useful in more than one `DATAFORALL` test surface, it should usually live here instead of being hand-authored inside one test file.
+
+### Current DATAFORALL coverage
+
+Helper-backed sleep fixtures currently power these `DATAFORALL` surfaces:
+
+- Apple Health parser/import tests
+- sleep import hook and app flows
+- sleep value-estimate tests
+
+Helper-backed dataset fixtures currently power these `DATAFORALL` surfaces:
+
+- dataset import pipeline tests
+- narrow workspace import-facing tests
+- app-level Apple Health and JSON dataset import flows
+
+### Intentional inline exceptions
+
+The current integration audit did not find any further high-value realistic import story that still needs migration into helper. The notable inline cases that remain are intentional:
+
+- malformed-container and ambiguous-source tests such as ambiguous ZIP handling and source-detection failures
+- restore-shell and local-DB setup tests whose primary subject is restoration behavior rather than imported file semantics
+- tiny repository, summary, and source-detection micro-tests where helper would add indirection without improving clarity
+
+### Maintenance rule
+
+When helper-managed fixtures change, refresh `DATAFORALL` through the curated sync command:
+
+```bash
+pnpm sync:dataforall-fixtures -- --dataforall-repo ../DATAFORALL
+```
+
+Do not hand-copy helper-managed fixtures into `DATAFORALL`. The vendored directory in `DATAFORALL/src/test/fixtures/datafortestinghelper` is a synced view of the curated helper contract, not a second source of truth.
+
 ## Runtime usage
 
 ```ts
